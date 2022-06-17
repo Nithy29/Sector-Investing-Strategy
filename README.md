@@ -7,7 +7,11 @@ For this project, we want to show our investors t.
 ___
 
 **Team members:-**
-        `Ali Ait,  Kevin Calderon, Hassan Mehmood, Sarvan Veluppillai`
+
+   - Ali Ait
+   - Kevin Calderon
+   - Hassan Mehmood
+   - Sarvan Veluppillai
 
 <p>&nbsp;</p>
 

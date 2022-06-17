@@ -6,8 +6,7 @@ For this project, we want to show our investors t.
 
 ___
 
-**Team members:-**
-
+### Team members:-
    - Ali Ait
    - Kevin Calderon
    - Hassan Mehmood

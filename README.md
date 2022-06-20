@@ -30,6 +30,6 @@ ___
 - [Sector Investing Strategy](Model_Analysis.ipynb)
 
 ### Graphs
-![Correlation plot of Stocks](Images/correlation_map.png)
-![Moving Average plot](Images/ema_plot.png)
-![Overall Position Predition plot](Images/overall_plot.png)
+![Correlation plot of Stocks](images/correlation_map.png)
+![Moving Average plot](images/ema_plot.png)
+![Overall Position Predition plot](images/overall_plot.png)

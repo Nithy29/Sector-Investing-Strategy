@@ -42,33 +42,27 @@ def run_correlation(sel):
     tickers.append(sel) 
     df_data = pd.DataFrame()
     for ticker in tickers:
-        #st.text(f"{ticker}")
         df_data[ticker] = ticker_data_history(ticker, drop_columns, ticker)
     df_data.dropna(inplace=True)  # Drop any nas
 
-    col1,col2,col3 = st.columns([3,1,3])
-    with col1:
-        st.write(f"Ticker data and Correlation Data")
-        st.dataframe(df_data)
+    # Correlation calculation. Retrieve all sector data
+    tickers  = ['SPY', 'XLK', 'XLV', 'XLI', 'XLP', 'XLE', 'XLY', 'XLB']
+    df_data1 = pd.DataFrame()    
+    for ticker in tickers:
+        df_data1[ticker] = ticker_data_history(ticker, drop_columns, ticker)
+    df_data1.dropna(inplace=True)  # Drop any nas
+    correlation = df_data1.corr()
 
-    with col2:
-        correlation = df_data.corr()
-        st.write(f"Correlation Data")
-        st.dataframe(correlation)
-
-    with col3:    
-        st.write(f"Correlation HeatMap")
-        sn.set_theme(style="darkgrid")
-        fig, ax = plt.subplots()
-        correlation_map = sn.heatmap(correlation,vmin = 0.0,vmax=1.0)
-        #figure = correlation_map.get_figure()    
-        #figure.savefig('correlation_map.png', dpi=100)
-        st.write(fig, use_container_width=True)
+    # Plot heat map for all sector data
+    sn.set_theme(style="darkgrid")
+    fig, ax = plt.subplots()
+    correlation_map = sn.heatmap(correlation,vmin = 0.0,vmax=1.0)
     
-    return
+    return df_data, correlation, fig
+
 
 # Function to Run analysis
-def run_model(sel):
+def run_model(sel, name):
     # Get TRX Gold Corp data from yahoo finance
     drop_columns = ['Dividends','Stock Splits']
     period   ='2y'
@@ -92,8 +86,7 @@ def run_model(sel):
     ema['ema_21'] = TA.EMA(sel_tick,21)                         # EMA with 21 periods
     ema['signal'] = 0.0                                         # Set column name = 'signal'
     ema['signal'][9:]=np.where(ema['ema_5'][9:]>ema['ema_21'][9:],1.0,0.0) # calculate signal
-    st.write(f"Moving Average Data - 5 and 21 windows")
-    st.dataframe(ema)
+
 
     # Create sector data frame
     col = ["Close", "tnx", "ema_5", "ema_21", "signal", "entry/exit"]
@@ -105,8 +98,6 @@ def run_model(sel):
     sector_data['signal'] = ema['signal'].values                     # Add signal column
     sector_data['entry/exit'] = ema['signal'].diff()                 # Calculate and Add diff on signal
     sector_data.dropna(inplace=True)                                 # Drop any nas and assign to new DF=sector_data
-    st.write(f"Combined sector data")
-    st.dataframe(sector_data)
 
     # RSI Calculation
     sel_rsi = pd.DataFrame(TA.RSI(sel_tick))                    # Calculate RSI value
@@ -120,9 +111,6 @@ def run_model(sel):
 
     sector_data.dropna(inplace=True)                            # Drop any nas
     X_feature = sector_data.iloc[:,:4]                          # Extract first 4 columns for X-Feature
-    #sector_data
-    st.dataframe(X_feature)
-
 
     # Select y value and setup training/testing data
     y = sector_data.iloc[:,-2].values           # Select column = 'signal' as y value
@@ -133,8 +121,8 @@ def run_model(sel):
     y_test  = y[split:]                         # Assign 25% to y_train
 
     # Shape, fit, scale  and train data
-    X_train.shape                               # Shape the X_train data
-    y_test.shape                                # Shape the y_test data
+    t = X_train.shape                           # Shape the X_train data
+    t = y_test.shape                            # Shape the y_test data
     x_train_scaled = scaler.fit(X_train)        # Fit the X_train data using MinMaxScaler
     x_train_scaled = scaler.transform(X_train)  # Now, scale the feature training
     x_test_scaled  = scaler.transform(X_test)   # Now, scale the feature testing
@@ -143,7 +131,11 @@ def run_model(sel):
 
     # Print classification report
     report_test = classification_report(y_test,predictions)
-    st.text(report_test)
+    report_test1 = classification_report(y_test,predictions, output_dict=True, digits=4)
+    report_df = pd.DataFrame(report_test1)
+    report_df.drop(columns=['weighted avg', 'accuracy', 'macro avg'], inplace=True)
+    report_df = report_df.iloc[0:3]
+
 
     col1,col2 = st.columns([2,2])
     y_test = pd.DataFrame(y_test,columns =['y_t'])                # Convert y_test and name the column
@@ -154,21 +146,19 @@ def run_model(sel):
     predictions['y_actual'] = y_test['y_t'].diff()                # Add & calculate y_actual
     predictions.dropna(inplace=True)                              # Drop all nas
     predictions['close'] = X_feature.iloc[split+1:,0].values      # Add close price from X_feature
-    
-    with col1:
-        st.write(f"y_test data")
-        st.dataframe(y_test)
-    
-    with col2:
-        st.write(f"Predicted data")
-        st.dataframe(predictions)
 
+    t = pd.DataFrame(predictions['y_pred'])
+    if t['y_pred'].iat[-1] == 1.0:
+        decission = f"We Recommend a Buy for the {name} Sector"
+    elif t['y_pred'].iat[-1] == -1.0:
+        decission = f"We Recommend a Sell for the {name} Sector"
+    else:
+        decission = f"We Recommend to hold for the {name} Sector"
+
+    #Total buys
     days_bought=predictions[predictions['y_actual']== -1.0]
-    st.write(f"Number of Days bought")
-    st.dataframe(days_bought)
 
     #Plot overall map
-
     entry = predictions[predictions['y_pred'] == 1.0]['close'].hvplot.scatter(
         color='purple',
         marker='^',
@@ -195,21 +185,17 @@ def run_model(sel):
 
 
     # Overlay the plots
-    #fig, ax = plt.subplots()
     entry_exit_plot = security_close *  entry * exit
     entry_exit_plot.opts(
         title="Sector Buy/Sell Signals"
     )
-    #st.bokeh_chart(hv.render(entry_exit_plot, backend='bokeh'))
-    st.write(hv.render(entry_exit_plot, backend='bokeh'))
-    #st.write(fig, use_container_width=True)
-    
+
+    #Graph the classification report
+    report_df = report_df.iloc[0:3]
+    bar = report_df.hvplot.bar(title='Performance Metrics',  xlabel='Metrics', ylabel='Classification')
 
 
-    return
-
-
-
+    return ema, sector_data, X_feature, report_test, y_test, predictions, days_bought, entry_exit_plot, bar, decission
 
 def main():
 
@@ -219,7 +205,8 @@ def main():
     sector = st.selectbox("Select the sector", select_value)
 
     if st.button("Submit"):
-        st.text(f"Selection is {sector}")
+        st.caption(f"Selection is {sector}. Colleacted data for selected sector")
+
         if sector == 'Technology':
             tick = 'XLK'
         elif sector == 'Health Care':
@@ -235,8 +222,58 @@ def main():
         else: 
             tick = 'XLB'
 
-        run_correlation(tick)
-        run_model(tick)
+        df_data, correlation, fig = run_correlation(tick)
+        ema, sector, feature, report, y, predictions, bought, entry_plot, bar, decission = run_model(tick, sector)
+
+        col1,col2,col3 = st.columns([3,1,3])
+        
+        with col1:
+            st.write(f"Ticker data and Correlation Data") 
+            st.dataframe(df_data)
+
+        with col2:
+            st.write(f"Correlation Data")
+            st.dataframe(correlation)
+
+        with col3:
+            st.write(f"y_test data")
+            st.dataframe(y)
+            
+        col1,col2 = st.columns([2,2])
+
+        st.write(f"Moving Average Data - 5 and 21 windows")
+        st.dataframe(ema)
+
+        st.write(f"Combined sector data")
+        st.dataframe(sector)
+        
+        st.write(f"Relative Strength Index")
+        st.dataframe(feature)
+        
+        st.write(f"Classification Report")
+        st.text(report)
+
+        with col1:
+            st.write(f"Predicted data")
+            st.dataframe(predictions)
+
+        with col2:            
+            st.write(f"Number of Days bought")
+            st.dataframe(bought)
+        
+        st.write("\n")
+        st.subheader(f"Heatmap for all sector")
+        st.write(fig, use_container_width=True)
+
+        st.write("\n")
+        st.subheader(f"Model performance plot")
+        st.write(hv.render(entry_plot, backend='bokeh'))
+
+        st.write("\n")
+        st.subheader(f"Performance Metrics")
+        st.write(hv.render(bar, backend='bokeh'))
+        st.header(decission)
+
 
 
 if __name__ == '__main__':

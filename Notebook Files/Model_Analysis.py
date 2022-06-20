@@ -538,13 +538,13 @@ def main():
         st.write(f"Classification Report")
         st.text(report)
 
-        with col1:
-            st.write(f"Predicted data")
-            st.dataframe(predictions)
+        # with col1:
+        #     st.write(f"Predicted data")
+        #     st.dataframe(predictions)
 
-        with col2:            
-            st.write(f"Number of Days bought")
-            st.dataframe(bought)
+        # with col2:            
+        #     st.write(f"Number of Days bought")
+        #     st.dataframe(bought)
         
         st.write("\n")
         st.subheader(f"Heatmap for all sector")

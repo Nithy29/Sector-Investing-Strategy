@@ -64,9 +64,11 @@ def run_correlation(sel):
     tickers = []
     tickers.append('SPY')
     tickers.append(sel) 
+    period   ='2y'
+    interval ='1h'
     df_data = pd.DataFrame()
     for ticker in tickers:
-        df_data[ticker] = ticker_data_history(ticker, drop_columns, ticker)
+        df_data[ticker] = ticker_data_history(ticker, drop_columns, ticker, period)
     df_data.dropna(inplace=True)  # Drop any nas
 
     # Correlation calculation. Retrieve all sector data
@@ -176,7 +178,7 @@ def run_model(sel, name):
     elif t['y_pred'].iat[-1] == -1.0:
         decission = f"We Recommend a Sell for the {name} Sector"
     else:
-        decission = f"We Recommend to hold for the {name} Sector at this time"
+        decission = f"We Recommend to stay in cash for the {name} Sector at this time"
 
     #Total buys
     days_bought=predictions[predictions['y_actual']== -1.0]
@@ -487,7 +489,7 @@ def main():
     sector = st.selectbox("Select the sector", select_value)
 
     if st.button("Submit"):
-        st.caption(f"Selection is {sector}. Colleacted data for selected sector")
+        st.caption(f"Selection is {sector}. Collecting data for selected sector")
 
         if sector == 'Technology':
             tick = 'XLK'
@@ -506,7 +508,7 @@ def main():
 
         df_data, correlation, fig = run_correlation(tick)
         ema, sector, feature, report, y, predictions, bought, entry_plot, bar, decission = run_model(tick, sector)
-        all_tweet, all_people_tweet = sentiment_analysis()
+        #all_tweet, all_people_tweet = sentiment_analysis()
 
         col1,col2,col3 = st.columns([3,1,3])
         
@@ -557,14 +559,14 @@ def main():
         st.write(hv.render(bar, backend='bokeh'))
 
         st.write("\n")
-        st.header(f"Sentiment Analysis")
-        st.subheader(f"News Sentiment Tweets:")
-        pd.set_option('display.max_columns', None)
+        # st.header(f"Sentiment Analysis")
+        # st.subheader(f"News Sentiment Tweets:")
+        # pd.set_option('display.max_columns', None)
 
-        st.dataframe(all_tweet)
-        #AgGrid(all_tweet)
-        st.subheader(f"Traders Sentiment Tweets: ")
-        st.dataframe(all_people_tweet)
+        # st.dataframe(all_tweet)
+        # #AgGrid(all_tweet)
+        # st.subheader(f"Traders Sentiment Tweets: ")
+        # st.dataframe(all_people_tweet)
         
         st.header(decission)
 

@@ -2,7 +2,35 @@
 
 ## Hello and Welcome to our group project! 
 
-For this project, we want to show our investors t.
+With thousands of stocks to invest in, it can be overwhelming for you to pick the right profitable stock. 
+
+- Where do you start? 
+
+- What metrics do you look at?
+
+- What type of analysis and resources to use?
+
+We narrow it down for you by offering a sector analysis investment strategy that present several benefits: 
+
+- Seek Alpha
+
+- Position for business cycles
+
+- Understand nature of the market
+
+We want to provide you with a stock and ETF investment strategy based on sector analysis.  Our product explains the direction of the money flow in each sector.
+
+Sector investing is a top-down investment strategy  and a way of capitalizing on market shifts caused by changing business conditions and investor focus.
+
+We specialize in giving buy & sell recommendations for 8 different sectors with the goal to outperform the S&P 500. In order to provide those buy & sell recommendations, we have built a machine learning model that takes in considerations several factors such as:
+
+- Closing Price
+- Correlation
+- Relative Strenght Index 
+- Exponential Moving Average
+- 10 year treasury yield
+
+Since we want to provide buy/sell recommendations and not the prediction of the price, we used a classification model: Support Vector Machine. 
 
 ___
 

@@ -60,10 +60,9 @@ ___
 ### Graphs
 - Correlation plot <p></p>
 ![Correlation plot of Stocks](images/correlation_map.png)
-
-- Moving Average plot
+- Moving Average plot <p></p>
 ![Moving Average plot](images/ema_plot.png)
-- Overall Position Predition plot
+- Overall Position Predition plot <p></p>
 ![Overall Position Predition plot](images/overall_plot.png)
-- Performance Metrics plot
+- Performance Metrics plot <p></p>
 ![Performance Metrics](images/Performance_Metrics.png)

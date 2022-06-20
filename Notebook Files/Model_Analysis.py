@@ -198,7 +198,7 @@ def run_model(sel):
     #fig, ax = plt.subplots()
     entry_exit_plot = security_close *  entry * exit
     entry_exit_plot.opts(
-        title="Short-Position Dual Moving Average Trading Algorithm"
+        title="Sector Buy/Sell Signals"
     )
     #st.bokeh_chart(hv.render(entry_exit_plot, backend='bokeh'))
     st.write(hv.render(entry_exit_plot, backend='bokeh'))

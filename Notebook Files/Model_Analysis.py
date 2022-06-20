@@ -1,7 +1,7 @@
 # Imports
 #!pip install streamlit -q <- co-lab
-from this import s
-from turtle import title
+#from this import s
+#from turtle import title
 import pandas as pd
 import numpy as np
 import yfinance as yf
@@ -9,18 +9,42 @@ import hvplot.pandas
 import seaborn as sn
 import streamlit as st
 import holoviews as hv
+import nltk as nltk
+import tweepy 
+import re
+import string
+import warnings
+import matplotlib.pyplot as plt
 
+#from st_aggrid import AgGrid
 from finta import TA
 from sklearn.preprocessing import MinMaxScaler,StandardScaler
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report
-import matplotlib.pyplot as plt
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk.stem.porter import PorterStemmer
+from tweepy import OAuthHandler 
+from tweepy import Cursor 
+
+
 
 
 # Setup environment variable
 model  = SVC()
 scaler = MinMaxScaler()
+analyzer = SentimentIntensityAnalyzer()
+stemmer = PorterStemmer()
+warnings.filterwarnings('ignore')
+nltk.download('vader_lexicon')
 hv.extension('bokeh')
+
+# Twitter API information
+api_key='2LEkmltQnjgt4NEwAiU3wKfiU'
+api_key_secret='Jg0Fl7wkEAVSbJnXpHXXZEySZka9Dg3FxW8H3tqCfaoFjrsowc'
+acc_token='143141229-1gfi2d61Aco7beRwqgxTo8DdzjWmaKLmqPZgVepA'
+acc_secret='4Cxbo1eNgS6DF69gF7vJ01IXE2hhU7Uo3qAjgvskhTTfo'
+
+
 
 # Function to Retrieve ticker data
 def ticker_data_history(ticker, column_drop, rename_column, per = 'max', int_period = '1wk'):
@@ -138,8 +162,7 @@ def run_model(sel, name):
 
 
     col1,col2 = st.columns([2,2])
-    y_test = pd.DataFrame(y_test,columns =['y_t'])                # Convert y_test and name the column
-    
+    y_test = pd.DataFrame(y_test,columns =['y_t'])                # Convert y_test and name the column  
 
     predictions = pd.DataFrame(predictions,columns = ['pred'])    # Create df of preditions
     predictions['y_pred'] = predictions['pred'].diff()            # Calculate diff() based on 'pred'
@@ -153,7 +176,7 @@ def run_model(sel, name):
     elif t['y_pred'].iat[-1] == -1.0:
         decission = f"We Recommend a Sell for the {name} Sector"
     else:
-        decission = f"We Recommend to hold for the {name} Sector"
+        decission = f"We Recommend to hold for the {name} Sector at this time"
 
     #Total buys
     days_bought=predictions[predictions['y_actual']== -1.0]
@@ -194,8 +217,267 @@ def run_model(sel, name):
     report_df = report_df.iloc[0:3]
     bar = report_df.hvplot.bar(title='Performance Metrics',  xlabel='Metrics', ylabel='Classification')
 
-
     return ema, sector_data, X_feature, report_test, y_test, predictions, days_bought, entry_exit_plot, bar, decission
+
+# Sentiment calculation from twitter
+def get_twitter_auth():
+    """
+    @return:
+        - the authentification to Twitter
+    """
+    try:
+        consumer_key = api_key
+        consumer_secret = api_key_secret
+        access_token = acc_token
+        access_secret = acc_secret
+        
+    except KeyError:
+        st.write("Twitter Environment Variable not Set\n")
+        return 0
+        
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_secret)
+    
+    return auth
+
+def get_twitter_client():
+    """
+    @return:
+        - the client to access the authentification API
+    """
+    auth = get_twitter_auth()
+    client = tweepy.API(auth, wait_on_rate_limit=True)
+    return client
+
+def get_tweets_from_user(twitter_user_name, page_limit=16, count_tweet=20):
+    """
+    @params:
+        - twitter_user_name: the twitter username of a user (company, etc.)
+        - page_limit: the total number of pages (max=16)
+        - count_tweet: maximum number to be retrieved from a page
+        
+    @return
+        - all the tweets from the user twitter_user_name
+    """
+    client = get_twitter_client()
+    
+    all_tweets = []
+    
+    for page in Cursor(client.user_timeline, 
+                        screen_name=twitter_user_name, 
+                        count=count_tweet).pages(page_limit):
+        for tweet in page:
+            parsed_tweet = {}
+            parsed_tweet['date'] = tweet.created_at
+            parsed_tweet['author'] = tweet.user.name
+            parsed_tweet['twitter_name'] = tweet.user.screen_name
+            parsed_tweet['text'] = tweet.text
+            parsed_tweet['number_of_likes'] = tweet.favorite_count
+            parsed_tweet['number_of_retweets'] = tweet.retweet_count
+                
+            all_tweets.append(parsed_tweet)
+    
+    # Create dataframe 
+    df = pd.DataFrame(all_tweets)
+    
+    # Revome duplicates if there are any
+    df = df.drop_duplicates( "text" , keep='first')
+    
+    return df
+
+# Sentiment calculation based on compound score
+def get_sentiment(score):
+    """
+    Calculates the sentiment based on the compound score.
+    """
+    result = 0  # Neutral by default
+    if score >= 0.05:  # Positive
+        result = 1
+    elif score <= -0.05:  # Negative
+        result = -1
+
+    print(f"Compound: {score}, Result: {result}")
+    
+    return result
+    
+#function for remove pattern in the input text
+def remove_pattern(input_txt, pattern):
+    r = re.findall(pattern, input_txt)
+    for word in r:
+        input_txt = re.sub(word, "", input_txt)
+    return input_txt
+
+def sentiment_analysis():
+    # making a dataframe with the bloomberg news
+    df1 = get_tweets_from_user("markets")
+    print("Data Shape: {}".format(df1.shape))
+    df1.columns = df1.columns.str.replace('text', 'tweet')
+    bloomberg = df1['tweet']
+
+    # making a dataframe with the wall street journal news
+    df2 = get_tweets_from_user("wsj")
+    print("Data Shape: {}".format(df2.shape))
+    df2.columns = df2.columns.str.replace('text', 'tweet')
+    wall_street = df2['tweet']
+
+    # making a dataframe with the yahoo finance news
+    df3 = get_tweets_from_user("yfinanceplus")
+    print("Data Shape: {}".format(df3.shape))
+    df3.columns = df3.columns.str.replace('text', 'tweet')
+    yahoo_finance = df3['tweet']
+
+    #Concat all the tweets from the news accounts
+    a = {'Bloomberg':bloomberg.values, 'Wall Street':wall_street.values, 'Yahoo Finance':yahoo_finance}
+    all_tweet = pd.DataFrame.from_dict(a, orient='index')
+    all_tweet = all_tweet.transpose()
+    #st.dataframe(all_tweet)                       #Display data
+
+    # #changing the name all_tweet to df again
+    # df = all_tweet
+
+    # #combine all tweets per news in one column
+    # df["tweet"] = df["Bloomberg"].astype(str) + df["Wall Street"].astype(str) + df["Yahoo Finance"].astype(str)
+
+    # #remove twitter users
+    # df['clean_tweet'] = np.vectorize(remove_pattern)(df['tweet'], "@[\w]*")
+
+    # #remove special characters, numbers and punctuations
+    # df['clean_tweet'] = df['clean_tweet'].str.replace("[^a-zA-Z#]", " ")
+
+    # #remove short words
+    # df['clean_tweet'] = df['clean_tweet'].apply(lambda x: " ".join([w for w in x.split() if len(w)>3]))
+    # df.head()
+
+    # tokenized_tweet = df['clean_tweet'].apply(lambda x: x.split())
+
+    # #stem the words
+    # tokenized_tweet = tokenized_tweet.apply(lambda sentence: [stemmer.stem(word) for word in sentence])
+
+    # #combine words into single sentence
+    # for i in range(len(tokenized_tweet)):
+    #     tokenized_tweet[i] = " ".join(tokenized_tweet[i])
+
+    # df['clean_tweet'] = tokenized_tweet
+    # df = df.drop(['tweet'], axis=1)
+
+    # # Sentiment scores dictionaries
+    # tweet_sent = {
+    #     "tweet_compound": [],
+    #     "tweet_pos": [],
+    #     "tweet_neu": [],
+    #     "tweet_neg": [],
+    #     "tweet_sent": [],
+    # }
+
+    # # Get sentiment for the text and the title
+    # for index, row in df.iterrows():
+    #     try:
+    #         # Sentiment scoring with VADER
+    #         tweet_sentiment = analyzer.polarity_scores(row["clean_tweet"])
+    #         tweet_sent["tweet_compound"].append(tweet_sentiment["compound"])
+    #         tweet_sent["tweet_pos"].append(tweet_sentiment["pos"])
+    #         tweet_sent["tweet_neu"].append(tweet_sentiment["neu"])
+    #         tweet_sent["tweet_neg"].append(tweet_sentiment["neg"])
+    #         tweet_sent["tweet_sent"].append(get_sentiment(tweet_sentiment["compound"]))
+    #     except AttributeError:
+    #         pass
+
+    # # Attaching sentiment columns to the News DataFrame
+    # tweet_sentiment_df = pd.DataFrame(tweet_sent)
+    # st.dataframe(tweet_sentiment_df)
+
+    # # Describe dataframe
+    # st.dataframe(tweet_sentiment_df.describe())
+
+    # making a dataframe with the CMTAssociation news
+    df4 = get_tweets_from_user("CMTAssociation")
+    print("Data Shape: {}".format(df4.shape))
+    df4.columns = df4.columns.str.replace('text', 'tweet')
+    CMTAssociation = df4['tweet']
+
+    # making a dataframe with the ParetsJc news
+    df5 = get_tweets_from_user("ParetsJc")
+    print("Data Shape: {}".format(df5.shape))
+    df5.columns = df5.columns.str.replace('text', 'tweet')
+    ParetsJc = df5['tweet']
+
+    # making a dataframe with the allstarcharts news
+    df6 = get_tweets_from_user("allstarcharts")
+    print("Data Shape: {}".format(df6.shape))
+    df6.columns = df6.columns.str.replace('text', 'tweet')
+    allstarcharts = df6['tweet']
+
+    #Concat all the tweets from the news accounts
+    a = {'CMT Association':CMTAssociation.values, 'RSI Wizard':ParetsJc.values, 'J.C. Parets':allstarcharts.values}
+    all_people_tweet = pd.DataFrame.from_dict(a, orient='index')
+    all_people_tweet = all_people_tweet.transpose()
+    new_df = all_people_tweet
+    #st.dataframe(all_people_tweet)  
+
+    # #combine all tweets per news in one column
+    # new_df["tweet"] = new_df["CMT Association"].astype(str) + new_df["RSI Wizard"].astype(str) + new_df["J.C. Parets"].astype(str)
+
+    # #remove twitter users
+    # new_df['clean_tweet'] = np.vectorize(remove_pattern)(new_df['tweet'], "@[\w]*")
+
+    # #remove special characters, numbers and punctuations
+    # new_df['clean_tweet'] = new_df['clean_tweet'].str.replace("[^a-zA-Z#]", " ")
+
+    # #remove short words
+    # new_df['clean_tweet'] = new_df['clean_tweet'].apply(lambda x: " ".join([w for w in x.split() if len(w)>3]))
+
+    # tokenized = new_df['clean_tweet'].apply(lambda x: x.split())
+
+    # #stem the words
+    # #from nltk.stem.porter import PorterStemmer
+    # #stemmer = PorterStemmer()
+
+    # tokenized = tokenized.apply(lambda sentence: [stemmer.stem(word) for word in sentence])
+
+    # #combine words into single sentence
+    # for i in range(len(tokenized)):
+    #     tokenized[i] = " ".join(tokenized[i])
+
+    # new_df['clean_tweet'] = tokenized
+    # new_df = new_df.drop(['tweet'], axis=1)
+
+    # #from nltk.sentiment.vader import SentimentIntensityAnalyzer
+    # #analyzer = SentimentIntensityAnalyzer()
+
+    # # Sentiment scores dictionaries
+    # tweet_sent2 = {
+    #     "tweet_compound2": [],
+    #     "tweet_pos2": [],
+    #     "tweet_neu2": [],
+    #     "tweet_neg2": [],
+    #     "tweet_sent2": [],
+    # }
+
+    # # Get sentiment for the text and the title
+    # for index, row in new_df.iterrows():
+    #     try:
+    #         # Sentiment scoring with VADER
+    #         tweet_sentiment2 = analyzer.polarity_scores(row["clean_tweet"])
+    #         tweet_sent2["tweet_compound2"].append(tweet_sentiment2["compound"])
+    #         tweet_sent2["tweet_pos2"].append(tweet_sentiment2["pos"])
+    #         tweet_sent2["tweet_neu2"].append(tweet_sentiment2["neu"])
+    #         tweet_sent2["tweet_neg2"].append(tweet_sentiment2["neg"])
+    #         tweet_sent2["tweet_sent2"].append(get_sentiment(tweet_sentiment2["compound"]))
+    #     except AttributeError:
+    #         pass
+
+    # # Attaching sentiment columns to the News DataFrame
+    # tweet_sentiment_df2 = pd.DataFrame(tweet_sent2)
+
+    # st.dataframe(tweet_sentiment_df2)
+
+    # # Describe dataframe
+    # st.dataframe(tweet_sentiment_df2.describe())
+
+
+    return all_tweet, all_people_tweet
+
+
 
 def main():
 
@@ -224,6 +506,7 @@ def main():
 
         df_data, correlation, fig = run_correlation(tick)
         ema, sector, feature, report, y, predictions, bought, entry_plot, bar, decission = run_model(tick, sector)
+        all_tweet, all_people_tweet = sentiment_analysis()
 
         col1,col2,col3 = st.columns([3,1,3])
         
@@ -272,6 +555,17 @@ def main():
         st.write("\n")
         st.subheader(f"Performance Metrics")
         st.write(hv.render(bar, backend='bokeh'))
+
+        st.write("\n")
+        st.header(f"Sentiment Analysis")
+        st.subheader(f"News Sentiment Tweets:")
+        pd.set_option('display.max_columns', None)
+
+        st.dataframe(all_tweet)
+        #AgGrid(all_tweet)
+        st.subheader(f"Traders Sentiment Tweets: ")
+        st.dataframe(all_people_tweet)
+        
         st.header(decission)
 
 

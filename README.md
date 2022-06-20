@@ -58,6 +58,11 @@ ___
 - [Sector Investing Strategy](Model_Analysis.ipynb)
 
 ### Graphs
+- Correlation plot
 ![Correlation plot of Stocks](images/correlation_map.png)
+- Moving Average plot
 ![Moving Average plot](images/ema_plot.png)
+- Overall Position Predition plot
 ![Overall Position Predition plot](images/overall_plot.png)
+- Performance Metrics plot
+![Performance Metrics](images/Performance_Metrics.png)

@@ -55,7 +55,7 @@ ___
 <p>&nbsp;</p>
 
 ### PowerPoint
-- [Sector Investing Strategy](Model_Analysis.ipynb)
+- [Sector Investing Strategy](Sector Investing Strategy)
 
 ### Graphs
 - Correlation plot <p></p>

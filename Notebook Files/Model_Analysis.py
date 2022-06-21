@@ -508,7 +508,7 @@ def main():
 
         df_data, correlation, fig = run_correlation(tick)
         ema, sector, feature, report, y, predictions, bought, entry_plot, bar, decission = run_model(tick, sector)
-        #all_tweet, all_people_tweet = sentiment_analysis()
+        all_tweet, all_people_tweet = sentiment_analysis()
 
         col1,col2,col3 = st.columns([3,1,3])
         
@@ -559,14 +559,14 @@ def main():
         st.write(hv.render(bar, backend='bokeh'))
 
         st.write("\n")
-        # st.header(f"Sentiment Analysis")
-        # st.subheader(f"News Sentiment Tweets:")
-        # pd.set_option('display.max_columns', None)
+        st.header(f"Sentiment Analysis")
+        st.subheader(f"News Sentiment Tweets:")
+        pd.set_option('display.max_columns', None)
 
-        # st.dataframe(all_tweet)
-        # #AgGrid(all_tweet)
-        # st.subheader(f"Traders Sentiment Tweets: ")
-        # st.dataframe(all_people_tweet)
+        st.dataframe(all_tweet)
+        #AgGrid(all_tweet)
+        st.subheader(f"Traders Sentiment Tweets: ")
+        st.dataframe(all_people_tweet)
         
         st.header(decission)
 

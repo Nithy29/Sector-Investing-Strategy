@@ -1,5 +1,5 @@
 streamlit==1.10.0
-streamlit-aggrid=0.2.3.post2
+streamlit-aggrid==0.2.3.post2
 plotly==5.10.0
 yfinance==0.1.70
 seaborn==0.11.2

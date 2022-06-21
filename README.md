@@ -52,6 +52,7 @@ ___
 
 ### Notebooks
 - [Stock Analysis](Notebook%20Files/Model_Analysis.ipynb) &nbsp; <a href="https://colab.research.google.com/github/Nithy29/Project-2/blob/main/Notebook%20Files/Model_Analysis_co-Lab.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+- [Stock Analysis - Streamlit](https://github.com/Nithy29/Project-2/blob/main/Notebook%20Files/Model_Analysis.py)
 
 <p>&nbsp;</p>
 

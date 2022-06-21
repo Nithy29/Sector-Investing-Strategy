@@ -55,7 +55,7 @@ ___
 <p>&nbsp;</p>
 
 ### PowerPoint
-- [Sector Investing Strategy](Sector Investing Strategy)
+- [Sector Investing Strategy](https://github.com/Nithy29/Project-2/blob/main/Startup%20Presentation%20Deck.pdf)
 
 ### Graphs
 - Correlation plot <p></p>

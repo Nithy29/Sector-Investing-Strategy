@@ -32,6 +32,7 @@ We specialize in giving buy & sell recommendations for 8 different sectors with 
 
 Since we want to provide buy/sell recommendations and not the prediction of the price, we used a classification model: Support Vector Machine. 
 
+As an additional validation feature, we have built a Twitter sentiment analysis tool to get the sentiment polarity scores of the market. One of the challenges we faced is that a lot of tweets are from bots accounts or are completely out of context/value and could skew our results. Therefore we decided to limit our twitter API pull to specific accounts such as reputable news outlet (Yahoo Finance, Bloomberg, Wall Street Journal) as well as famous traders/analysts. We also decided to not include the sentiment analysis scores in our machine learning model featurs since we can only pull recent tweets and not historical data to match our sectors data timeframes. 
 ___
 
 ### Team members

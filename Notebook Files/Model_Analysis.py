@@ -27,8 +27,6 @@ from tweepy import OAuthHandler
 from tweepy import Cursor 
 
 
-
-
 # Setup environment variable
 model  = SVC()
 scaler = MinMaxScaler()

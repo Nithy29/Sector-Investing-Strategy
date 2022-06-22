@@ -21,7 +21,7 @@ from finta import TA
 from sklearn.preprocessing import MinMaxScaler,StandardScaler
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
+#from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.stem.porter import PorterStemmer
 from tweepy import OAuthHandler 
 from tweepy import Cursor 
@@ -35,7 +35,7 @@ scaler = MinMaxScaler()
 analyzer = SentimentIntensityAnalyzer()
 stemmer = PorterStemmer()
 warnings.filterwarnings('ignore')
-nltk.download('vader_lexicon')
+#nltk.download('vader_lexicon')
 hv.extension('bokeh')
 
 # Twitter API information

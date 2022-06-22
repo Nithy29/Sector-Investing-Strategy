@@ -10,7 +10,7 @@ With thousands of stocks to invest in, it can be overwhelming for you to pick th
 
 - What type of analysis and resources to use?
 
-We narrow it down for you by offering a sector analysis investment strategy that present several benefits: 
+We narrow it down for you by offering a sector analysis and investment strategy that present several benefits: 
 
 - Seek Alpha
 
@@ -18,7 +18,7 @@ We narrow it down for you by offering a sector analysis investment strategy that
 
 - Understand nature of the market
 
-We want to provide you with a stock and ETF investment strategy based on sector analysis.  Our product explains the direction of the money flow in each sector.
+We want to provide you with a stock and ETF investment strategy based on a sector analysis.  Our product explains the direction of the money flow in each sector.
 
 Sector investing is a top-down investment strategy  and a way of capitalizing on market shifts caused by changing business conditions and investor focus.
 
@@ -51,8 +51,7 @@ ___
 <p>&nbsp;</p>
 
 ### Notebooks
-- [Stock Analysis](Notebook%20Files/Model_Analysis.ipynb) &nbsp; <a href="https://colab.research.google.com/github/Nithy29/Project-2/blob/main/Notebook%20Files/Model_Analysis_co-Lab.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-- [Stock Analysis - Streamlit](https://github.com/Nithy29/Project-2/blob/main/Notebook%20Files/Model_Analysis.py)
+- [Sector Analysis](Notebook_Files/Model_Analysis.ipynb) &nbsp; <a href="https://colab.research.google.com/github/Nithy29/Project-2/blob/main/Notebook_Files/Model_Analysis_co-Lab.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a> &nbsp; <a href="https://share.streamlit.io/nithy29/project-2/main/Notebook_Files/Model_Analysis.py" target="_parent"><img src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg"/></a>
 
 <p>&nbsp;</p>
 

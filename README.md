@@ -10,7 +10,7 @@ With thousands of stocks to invest in, it can be overwhelming for you to pick th
 
 - What type of analysis and resources to use?
 
-We narrow it down for you by offering a sector analysis investment strategy that present several benefits: 
+We narrow it down for you by offering a sector analysis and investment strategy that present several benefits: 
 
 - Seek Alpha
 
@@ -18,7 +18,7 @@ We narrow it down for you by offering a sector analysis investment strategy that
 
 - Understand nature of the market
 
-We want to provide you with a stock and ETF investment strategy based on sector analysis.  Our product explains the direction of the money flow in each sector.
+We want to provide you with a stock and ETF investment strategy based on a sector analysis.  Our product explains the direction of the money flow in each sector.
 
 Sector investing is a top-down investment strategy  and a way of capitalizing on market shifts caused by changing business conditions and investor focus.
 

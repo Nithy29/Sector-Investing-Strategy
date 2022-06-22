@@ -32,7 +32,7 @@ from tweepy import Cursor
 # Setup environment variable
 model  = SVC()
 scaler = MinMaxScaler()
-analyzer = SentimentIntensityAnalyzer()
+#analyzer = SentimentIntensityAnalyzer()
 stemmer = PorterStemmer()
 warnings.filterwarnings('ignore')
 #nltk.download('vader_lexicon')

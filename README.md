@@ -52,7 +52,7 @@ ___
 
 ### Notebooks
 - [Sector Analysis](Notebook_Files/Model_Analysis.ipynb) &nbsp; <a href="https://share.streamlit.io/nithy29/project-2/main/Notebook_Files/Model_Analysis.py" target="_parent"><img src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg"/></a>
-- [Sentiment Analysis](Notebook_Files/Sentiment_Analysis.ipynb) &nbsp; <a href="https://colab.research.google.com/github/Nithy29/Project-2/blob/main/Notebook_Files/Model_Analysis_co-Lab.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+- [Sentiment Analysis](Notebook_Files/Sentiment_Analysis.ipynb) &nbsp; <a href="https://colab.research.google.com/github/Nithy29/Project-2/blob/main/Notebook_Files/Sentiment_Analysis.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 <p>&nbsp;</p>
 

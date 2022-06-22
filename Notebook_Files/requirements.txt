@@ -5,3 +5,4 @@ seaborn==0.11.2
 nltk==3.7
 tweepy==4.10.0
 finta==1.3
+hvplot==0.7.3
